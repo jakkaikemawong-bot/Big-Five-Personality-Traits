@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบบุคลิกภาพ Big Five</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7FB; --card:#FFFFFF; --ink:#1E2A44; --ink-soft:#5B6782;
+  --line:#E7EAF3; --brand:#4C63D2; --brand-soft:#EEF1FD;
+  --o:#8B6FD4; --c:#3E7BD4; --e:#E39A3C; --a:#45B07C; --n:#5FA8B5;
+  --shadow:0 10px 30px rgba(30,42,68,.07);
+  --radius:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'IBM Plex Sans Thai',system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:860px;margin:0 auto;padding:32px 20px 80px}
+.screen{display:none;animation:fade .45s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- ปุ่ม ---------- */
+.btn{
+  font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;
+  border:none;border-radius:999px;padding:15px 44px;
+  background:var(--brand);color:#fff;transition:.25s;
+  box-shadow:0 8px 20px rgba(76,99,210,.28);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(76,99,210,.36)}
+.btn.ghost{background:#fff;color:var(--brand);border:1.5px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ---------- หน้าแรก ---------- */
+.hero{text-align:center;padding:40px 0 28px}
+.hero .tag{
+  display:inline-block;background:var(--brand-soft);color:var(--brand);
+  font-size:.85rem;font-weight:600;padding:6px 18px;border-radius:999px;margin-bottom:18px
+}
+.hero h1{font-size:2.3rem;font-weight:700;line-height:1.35;letter-spacing:-.02em}
+.hero p{color:var(--ink-soft);max-width:600px;margin:16px auto 0;font-size:1.05rem}
+.card{
+  background:var(--card);border-radius:var(--radius);padding:30px;
+  box-shadow:var(--shadow);margin-bottom:18px;border:1px solid var(--line)
+}
+.trait-row{display:flex;gap:18px;align-items:flex-start;padding:18px 0;border-bottom:1px dashed var(--line)}
+.trait-row:last-child{border:none;padding-bottom:0}
+.dot{
+  flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  font-weight:700;color:#fff;font-size:1.15rem;margin-top:4px
+}
+.trait-row h3{font-size:1.08rem;font-weight:600}
+.trait-row h3 span{font-weight:400;color:var(--ink-soft);font-size:.9rem}
+.trait-row p{color:var(--ink-soft);font-size:.96rem;margin-top:2px}
+.note{background:#FFF8E9;border-left:4px solid #E3B14F;padding:16px 20px;border-radius:12px;font-size:.95rem;color:#6B5524}
+.meta{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;color:var(--ink-soft);font-size:.92rem;margin:24px 0 6px}
+
+/* ---------- หน้าทดสอบ ---------- */
+.topbar{position:sticky;top:0;background:rgba(246,247,251,.92);backdrop-filter:blur(10px);padding:18px 0 14px;z-index:10;margin:-32px -20px 0;padding-left:20px;padding-right:20px}
+.pbar{height:9px;background:#E4E8F2;border-radius:999px;overflow:hidden}
+.pbar>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6E7FE0,#45B07C);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.pmeta{display:flex;justify-content:space-between;font-size:.88rem;color:var(--ink-soft);margin-top:9px;font-weight:500}
+.intro-likert{background:linear-gradient(135deg,#EEF1FD,#F3F0FC);border-radius:var(--radius);padding:26px;margin:22px 0;text-align:center}
+.intro-likert h2{font-size:1.15rem;margin-bottom:6px}
+.intro-likert p{color:var(--ink-soft);font-size:.94rem;max-width:560px;margin:0 auto}
+
+.q{background:var(--card);border-radius:var(--radius);padding:26px 24px 20px;margin-bottom:16px;border:1px solid var(--line);box-shadow:var(--shadow);transition:.3s}
+.q.answered{border-color:#CFE3D8;background:#FEFFFE}
+.q .text{font-size:1.1rem;font-weight:500;text-align:center;margin-bottom:20px;line-height:1.7}
+.scale{display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,26px)}
+.opt{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;width:70px}
+.opt input{display:none}
+.circle{border-radius:50%;border:2.5px solid;background:#fff;transition:.22s;display:grid;place-items:center}
+.circle::after{content:'';width:0;height:0;border-radius:50%;background:currentColor;transition:.22s}
+.opt:hover .circle{transform:scale(1.12)}
+.opt input:checked + .circle{transform:scale(1.1)}
+.opt input:checked + .circle::after{width:60%;height:60%}
+.opt .lab{font-size:.74rem;color:var(--ink-soft);text-align:center;line-height:1.35;height:30px}
+.opt input:checked ~ .lab{color:var(--ink);font-weight:600}
+.s1 .circle{border-color:#E8A0A0;color:#E8A0A0;width:46px;height:46px}
+.s2 .circle{border-color:#EFBE8E;color:#EFBE8E;width:42px;height:42px}
+.s3 .circle{border-color:#C9CDD8;color:#C9CDD8;width:38px;height:38px}
+.s4 .circle{border-color:#8FCFA6;color:#8FCFA6;width:42px;height:42px}
+.s5 .circle{border-color:#4BC3A0;color:#4BC3A0;width:46px;height:46px}
+
+.nav{display:flex;align-items:center;justify-content:space-between;margin-top:26px;gap:14px}
+.arrow{width:54px;height:54px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--brand);font-size:1.4rem;cursor:pointer;transition:.22s;flex:none}
+.arrow:hover:not(:disabled){background:var(--brand);color:#fff;border-color:var(--brand)}
+.arrow:disabled{opacity:.3;cursor:not-allowed}
+.nav .hint{font-size:.9rem;color:var(--ink-soft);text-align:center;flex:1}
+
+/* ---------- เลขหน้า ---------- */
+.pagenum{text-align:center;margin-top:18px;font-size:.9rem;color:var(--ink-soft);font-weight:500;letter-spacing:.02em}
+.pagenum b{color:var(--brand);font-weight:700;font-size:1.05rem}
+.pagedots{display:flex;gap:7px;justify-content:center;margin-top:9px}
+.pagedots i{width:7px;height:7px;border-radius:50%;background:#D5DAE8;transition:.25s}
+.pagedots i.on{background:var(--brand);width:20px;border-radius:999px}
+.pagedots i.done{background:#8FCFA6}
+
+/* ---------- กำลังวิเคราะห์ ---------- */
+#screen-loading{text-align:center;padding:90px 0}
+.loadbar{height:12px;background:#E4E8F2;border-radius:999px;max-width:420px;margin:30px auto 14px;overflow:hidden}
+.loadbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6E7FE0,#8B6FD4,#45B07C);border-radius:999px;transition:width .4s linear}
+#loadtext{color:var(--ink-soft);font-size:.96rem;min-height:28px;transition:opacity .15s ease}
+.spinner{width:58px;height:58px;border:4px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;margin:0 auto 10px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- ผลลัพธ์ ---------- */
+.radar-box{text-align:center;padding:14px 0 0;overflow:visible}
+.spec{padding:24px 0;border-bottom:1px dashed var(--line)}
+.spec:last-of-type{border:none;padding-bottom:4px}
+.spec-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.spec-head h3{font-size:1.12rem;font-weight:600}
+.spec-head h3 em{font-style:normal;color:var(--ink-soft);font-weight:400;font-size:.88rem}
+.score{font-weight:700;font-size:1rem}
+.badge{font-size:.78rem;font-weight:600;padding:3px 13px;border-radius:999px;color:#fff;margin-left:8px;vertical-align:middle}
+.track{position:relative;height:16px;border-radius:999px;margin:16px 0 8px;background:linear-gradient(90deg,#E9ECF4 0%,#E9ECF4 100%)}
+.fill{position:absolute;inset:0;border-radius:999px;opacity:.9;width:0;transition:width 1.1s cubic-bezier(.3,1,.4,1)}
+.pin{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:#fff;border:4px solid;transform:translate(-50%,-50%);box-shadow:0 3px 10px rgba(0,0,0,.14);left:0;transition:left 1.1s cubic-bezier(.3,1,.4,1)}
+.poles{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-soft)}
+.desc{margin-top:12px;color:var(--ink-soft);font-size:.97rem}
+.desc b{color:var(--ink);font-weight:600}
+.tips{margin-top:12px;background:#F7F8FC;border-radius:12px;padding:14px 18px;font-size:.92rem;color:var(--ink-soft)}
+.tips strong{color:var(--ink)}
+.disclaimer{font-size:.85rem;color:#8891A6;text-align:center;max-width:620px;margin:26px auto 0;line-height:1.7}
+h2.sec{font-size:1.35rem;margin-bottom:6px}
+.sub{color:var(--ink-soft);font-size:.95rem;margin-bottom:10px}
+@media(max-width:640px){
+  .hero h1{font-size:1.7rem}
+  .q{padding:22px 12px 16px}
+  .opt{width:58px}
+  .scale{gap:4px}
+  .opt .lab{font-size:.66rem}
+  .card{padding:22px 18px}
+  .radar-box{padding-left:0;padding-right:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ========== หน้าแรก ========== -->
+<section id="screen-intro" class="screen active">
+  <div class="hero">
+    <span class="tag">แบบประเมินบุคลิกภาพเชิงจิตวิทยา</span>
+    <h1>รู้จักตัวเองผ่าน<br>Big Five Personality Traits</h1>
+    <p>โมเดลบุคลิกภาพที่ได้รับการยอมรับมากที่สุดในวงการจิตวิทยาสากล ใช้เวลาเพียงไม่กี่นาที เพื่อเข้าใจแนวโน้มพฤติกรรมและอารมณ์ของคุณใน 5 มิติ</p>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">Big Five คืออะไร?</h2>
+    <p class="sub">ลองนึกภาพว่าบุคลิกภาพของคนเราไม่ใช่ “กล่อง” ที่จับเราใส่ไว้ แต่เป็น <b>แผงปรับระดับเสียง 5 ตัว</b> ที่ทุกคนมีเหมือนกันหมด ต่างกันแค่ว่าใครปรับแต่ละตัวไว้สูงหรือต่ำ — ไม่มีการตั้งค่าไหน “ถูก” หรือ “ผิด” มีแต่ว่าเหมาะกับสถานการณ์ไหน</p>
+
+    <div class="trait-row">
+      <div class="dot" style="background:var(--o)">O</div>
+      <div><h3>ความเปิดรับประสบการณ์ <span>Openness</span></h3>
+      <p>คุณสนุกกับของใหม่ ไอเดียแปลก ๆ และความคิดเชิงนามธรรมมากแค่ไหน เทียบกับความชอบสิ่งที่คุ้นเคยและพิสูจน์แล้ว</p></div>
+    </div>
+    <div class="trait-row">
+      <div class="dot" style="background:var(--c)">C</div>
+      <div><h3>ความมีสำนึกรับผิดชอบ <span>Conscientiousness</span></h3>
+      <p>คุณวางแผน มีระเบียบ และทำตามเป้าหมายได้สม่ำเสมอแค่ไหน เทียบกับการทำตามจังหวะและความรู้สึกเฉพาะหน้า</p></div>
+    </div>
+    <div class="trait-row">
+      <div class="dot" style="background:var(--e)">E</div>
+      <div><h3>การแสดงตัว <span>Extraversion</span></h3>
+      <p>คุณได้พลังจากการอยู่กับผู้คนและความตื่นเต้น หรือได้พลังคืนจากเวลาเงียบ ๆ ตามลำพังมากกว่า</p></div>
+    </div>
+    <div class="trait-row">
+      <div class="dot" style="background:var(--a)">A</div>
+      <div><h3>ความเป็นมิตร <span>Agreeableness</span></h3>
+      <p>คุณให้น้ำหนักกับความกลมเกลียว ความเห็นอกเห็นใจ และการไว้ใจคนอื่นมากแค่ไหน เทียบกับการตรงไปตรงมาและปกป้องจุดยืนของตน</p></div>
+    </div>
+    <div class="trait-row">
+      <div class="dot" style="background:var(--n)">N</div>
+      <div><h3>ความไวทางอารมณ์ <span>Neuroticism / Emotional Stability</span></h3>
+      <p>ระบบอารมณ์ของคุณตอบสนองต่อความกดดันไวแค่ไหน และคืนสู่สมดุลได้เร็วเพียงใด</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="note">
+      <b>ก่อนเริ่ม:</b> ตอบตาม “ตัวคุณจริง ๆ ในชีวิตประจำวัน” ไม่ใช่ตัวคุณที่อยากเป็นหรือที่คนอื่นคาดหวัง ใช้ความรู้สึกแรกภายในไม่กี่วินาที จะแม่นกว่าการคิดนาน และไม่มีคำตอบถูก–ผิด
+    </div>
+    <div class="meta">
+      <span>⏱ ใช้เวลา 4–6 นาที</span>
+      <span>📋 ทั้งหมด 30 ข้อ</span>
+      <span>🔒 ข้อมูลไม่ถูกส่งออกจากเครื่องคุณ</span>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn" onclick="startTest()">เริ่มทดสอบ</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== หน้าทดสอบ ========== -->
+<section id="screen-test" class="screen">
+  <div class="topbar">
+    <div class="pbar"><i id="pfill"></i></div>
+    <div class="pmeta">
+      <span id="pcount">ตอบแล้ว 0 จาก 30 ข้อ</span>
+      <span id="ppct">0%</span>
+    </div>
+  </div>
+
+  <div id="likert-guide" class="intro-likert">
+    <h2>เลือกดูว่าแต่ละข้อความสะท้อนตัวตนของคุณได้อย่างแม่นยำแค่ไหน</h2>
+    <p>แต่ละข้อมี 5 ตัวเลือก ไล่จากซ้าย (ไม่ใช่ตัวคุณเลย) ไปขวา (ใช่ตัวคุณมาก) หากรู้สึกกลาง ๆ หรือขึ้นอยู่กับสถานการณ์ ให้เลือกวงกลมตรงกลางได้เลย</p>
+    <div class="scale" style="margin-top:20px;pointer-events:none">
+      <div class="opt s1"><span class="circle" style="background:#FDEDED"></span><span class="lab">ไม่เห็นด้วย<br>อย่างยิ่ง</span></div>
+      <div class="opt s2"><span class="circle" style="background:#FDF3E8"></span><span class="lab">ไม่เห็นด้วย</span></div>
+      <div class="opt s3"><span class="circle" style="background:#F4F5F8"></span><span class="lab">เป็นกลาง</span></div>
+      <div class="opt s4"><span class="circle" style="background:#EBF8F0"></span><span class="lab">เห็นด้วย</span></div>
+      <div class="opt s5"><span class="circle" style="background:#E4F7F2"></span><span class="lab">เห็นด้วย<br>อย่างยิ่ง</span></div>
+    </div>
+  </div>
+
+  <div id="qlist"></div>
+
+  <div class="nav">
+    <button class="arrow" id="btn-prev" onclick="goPage(-1)">&#8249;</button>
+    <div class="hint" id="nav-hint"></div>
+    <button class="arrow" id="btn-next" onclick="goPage(1)">&#8250;</button>
+  </div>
+  <div style="text-align:center;margin-top:22px">
+    <button class="btn" id="btn-finish" style="display:none" onclick="finish()">เสร็จสิ้น · ดูผลการวิเคราะห์</button>
+  </div>
+
+  <div class="pagenum">หน้า <b id="pg-now">1</b> จาก <span id="pg-all">5</span></div>
+  <div class="pagedots" id="pg-dots"></div>
+</section>
+
+<!-- ========== กำลังวิเคราะห์ ========== -->
+<section id="screen-loading" class="screen">
+  <div class="spinner"></div>
+  <h2 class="sec">กำลังวิเคราะห์บุคลิกภาพของคุณ</h2>
+  <div class="loadbar"><i id="loadfill"></i></div>
+  <p id="loadtext">กำลังประมวลผลคำตอบ…</p>
+</section>
+
+<!-- ========== ผลลัพธ์ ========== -->
+<section id="screen-result" class="screen">
+  <div class="hero" style="padding:26px 0 10px">
+    <span class="tag">ผลการวิเคราะห์</span>
+    <h1 style="font-size:1.9rem">บุคลิกภาพของคุณ</h1>
+    <p id="headline" style="font-size:1rem"></p>
+  </div>
+
+  <div class="card radar-box">
+    <div id="radar"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">แถบสเปกตรัมรายมิติ</h2>
+    <p class="sub">จุดวงกลมบนแถบคือตำแหน่งของคุณระหว่างสองขั้ว ยิ่งใกล้ขั้วใดแสดงว่าแนวโน้มด้านนั้นเด่นชัดขึ้น</p>
+    <div id="specs"></div>
+  </div>
+
+  <div class="card" id="validity-card" style="display:none">
+    <div class="note" id="validity-text"></div>
+  </div>
+
+  <div style="text-align:center">
+    <button class="btn ghost" onclick="resetAll()">ทำแบบทดสอบอีกครั้ง</button>
+    <p class="disclaimer">แบบประเมินนี้จัดทำเพื่อการตระหนักรู้ในตนเองและการพัฒนาตนเองเท่านั้น ไม่ใช่เครื่องมือวินิจฉัยทางคลินิก และไม่ควรใช้ตัดสินใจเรื่องการจ้างงานหรือการรักษา หากคุณกำลังเผชิญความทุกข์ทางใจ แนะนำให้ปรึกษานักจิตวิทยาหรือจิตแพทย์ · สายด่วนสุขภาพจิต 1323</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* =========================================================
+   1) คลังข้อคำถาม  (key: +1 ปกติ, -1 กลับคะแนน)
+   ========================================================= */
+const TRAITS = {
+  O:{th:'ความเปิดรับประสบการณ์',en:'Openness to Experience',color:'#8B6FD4',
+     lo:'ยึดสิ่งที่คุ้นเคย (Conventional)', hi:'เปิดรับสิ่งใหม่ (Inventive)'},
+  C:{th:'ความมีสำนึกรับผิดชอบ',en:'Conscientiousness',color:'#3E7BD4',
+     lo:'ยืดหยุ่น ตามจังหวะ (Spontaneous)', hi:'มีระเบียบ มีวินัย (Organized)'},
+  E:{th:'การแสดงตัว',en:'Extraversion',color:'#E39A3C',
+     lo:'เก็บตัว ครุ่นคิด (Introverted)', hi:'เปิดเผย กระตือรือร้น (Outgoing)'},
+  A:{th:'ความเป็นมิตร',en:'Agreeableness',color:'#45B07C',
+     lo:'ตรงไปตรงมา มีจุดยืน (Challenging)', hi:'เห็นอกเห็นใจ ร่วมมือ (Compassionate)'},
+  N:{th:'ความไวทางอารมณ์',en:'Neuroticism',color:'#5FA8B5',
+     lo:'อารมณ์มั่นคง (Emotionally Stable)', hi:'ไวต่ออารมณ์ (Sensitive)'}
+};
+
+const ITEMS = [
+  // Openness
+  {t:'O',k:1,  q:'ฉันชอบเรียนรู้เรื่องราวใหม่ ๆ และคิดคำนวณหรือแก้โจทย์ปัญหาที่ท้าทาย'},
+  {t:'O',k:-1, q:'ฉันรู้สึกสบายใจกับการทำงานด้วยวิธีเดิม ๆ มากกว่าการทดลองวิธีใหม่'},
+  {t:'O',k:1,  q:'ฉันมักจะต่อยอดไอเดียแปลกใหม่หรือสร้างสรรค์สิ่งใหม่ ๆ อยู่เสมอ'},
+  {t:'O',k:-1, q:'ฉันไม่ค่อยสนใจงานศิลปะ ทฤษฎี หรือแนวคิดที่เป็นนามธรรม'},
+  {t:'O',k:1,  q:'ฉันชอบตั้งคำถามและค้นหาความจริงเกี่ยวกับสิ่งต่าง ๆ รอบตัว'},
+  {t:'O',k:-1, q:'ฉันมักจะหลีกเลี่ยงการเข้าไปอยู่ในสถานการณ์ที่ไม่คุ้นเคย'},
+  // Conscientiousness
+  {t:'C',k:1,  q:'ฉันมักจะวางแผน วางลำดับขั้นตอน และทำตามเป้าหมายอย่างเป็นระบบ'},
+  {t:'C',k:-1, q:'ฉันมักจะผลัดวันประกันพรุ่งหรือเริ่มทำงานในนาทีสุดท้ายเสมอ'},
+  {t:'C',k:1,  q:'ฉันตรวจสอบความถูกต้องและรายละเอียดของงานอย่างพิถีพิถันก่อนส่งเสมอ'},
+  {t:'C',k:-1, q:'ฉันมักจะทำของหาย หรือจัดเก็บข้าวของเครื่องใช้ไม่เป็นระเบียบ'},
+  {t:'C',k:1,  q:'ฉันมีความพยายามและความอดทนสูงเพื่อให้งานบรรลุเป้าหมายที่ตั้งไว้'},
+  {t:'C',k:-1, q:'ฉันมักจะเปลี่ยนแผนกลางคัน หรือทำตามใจตัวเองโดยไม่สนแผนที่วางไว้'},
+  // Extraversion
+  {t:'E',k:1,  q:'ฉันรู้สึกมีพลังและกระปรี้กระเปร่าเมื่อได้เจอผู้คนและทำกิจกรรมกลุ่ม'},
+  {t:'E',k:-1, q:'ฉันรู้สึกเหนื่อยล้าทางพลังงานเมื่อต้องอยู่ในกลุ่มคนจำนวนมากเป็นเวลานาน'},
+  {t:'E',k:1,  q:'ฉันกล้าที่จะเปิดประเด็นพูดคุยหรือแสดงความคิดเห็นในที่ประชุมหรือกลุ่มเพื่อน'},
+  {t:'E',k:-1, q:'ฉันมักจะเป็นฝ่ายนั่งฟังเงียบ ๆ และหลีกเลี่ยงการเป็นจุดสนใจ'},
+  {t:'E',k:1,  q:'ฉันชอบความตื่นเต้นและชอบทำกิจกรรมที่มีความท้าทายสูง'},
+  {t:'E',k:-1, q:'ฉันชอบเก็บตัวและใช้เวลาเงียบ ๆ อยู่กับตัวเองมากกว่าไปงานสังสรรค์'},
+  // Agreeableness
+  {t:'A',k:1,  q:'ฉันยินดีที่จะช่วยเหลือผู้อื่นเสมอ แม้ว่าตนเองจะไม่ได้ประโยชน์อะไรตอบแทน'},
+  {t:'A',k:-1, q:'ฉันมักจะตั้งข้อสงสัยในเจตนาของคนอื่นไว้ก่อนว่ามีอะไรแอบแฝงหรือไม่'},
+  {t:'A',k:1,  q:'ฉันเข้าอกเข้าใจความรู้สึกของคนอื่นได้ง่าย และรับฟังโดยไม่ตัดสิน'},
+  {t:'A',k:-1, q:'ฉันมักจะโต้แย้งหรือถกเถียงอย่างตรงไปตรงมา โดยไม่กังวลเรื่องน้ำใจ'},
+  {t:'A',k:1,  q:'ฉันเชื่อว่าคนส่วนใหญ่มีความจริงใจและไว้ใจได้'},
+  {t:'A',k:-1, q:'ฉันมักจะมองว่าความต้องการของตัวเองสำคัญกว่าความรู้สึกของคนรอบข้าง'},
+  // Neuroticism
+  {t:'N',k:1,  q:'ฉันมักจะรู้สึกวิตกกังวล เครียด หรือกดดันได้ง่ายเมื่อเจอเหตุการณ์ไม่คาดฝัน'},
+  {t:'N',k:-1, q:'ฉันสามารถควบคุมอารมณ์และตั้งสติได้ดีมากแม้ในสถานการณ์วิกฤต'},
+  {t:'N',k:1,  q:'อารมณ์ของฉันเปลี่ยนแปลงได้ง่าย และหงุดหงิดกับเรื่องเล็ก ๆ น้อย ๆ ได้ไว'},
+  {t:'N',k:-1, q:'ฉันหายจากอาการเศร้าหรือความผิดหวังได้เร็ว และไม่ค่อยเก็บมาคิดซ้ำ ๆ'},
+  {t:'N',k:1,  q:'ฉันมักจะกังวลกับความผิดพลาดที่อาจจะเกิดขึ้นในอนาคตอยู่เสมอ'},
+  {t:'N',k:-1, q:'ฉันรู้สึกมั่นใจในตัวเองและรับมือกับคำวิพากษ์วิจารณ์ได้โดยไม่เสียศูนย์'}
+];
+
+/* สลับลำดับแบบ interleave: O,C,E,A,N วน 6 รอบ = 30 ข้อ
+   เพื่อลด response-set bias จากการเจอข้อหัวข้อเดียวกันติดกัน */
+const ORDER = [];
+const keys = ['O','C','E','A','N'];
+for(let r=0;r<6;r++) keys.forEach(k=>{
+  ORDER.push(ITEMS.filter(i=>i.t===k)[r]);
+});
+
+/* =========================================================
+   2) ฐานข้อมูลการแปลผลเชิงจิตวิทยา
+   ========================================================= */
+const INTERP = {
+O:{high:{t:'สูง',d:'คุณมี <b>จินตนาการและความอยากรู้อยากเห็นเป็นเครื่องยนต์หลัก</b> สนุกกับแนวคิดนามธรรม ศิลปะ และการตั้งคำถามกับสิ่งที่คนอื่นมองว่าปกติ คุณมักเห็นความเชื่อมโยงที่คนอื่นมองข้าม และเบื่อง่ายกับงานซ้ำเดิม งานวิจัยพบว่าลักษณะนี้สัมพันธ์กับความคิดสร้างสรรค์และการปรับตัวในสภาพแวดล้อมที่เปลี่ยนเร็ว',
+        s:'<strong>จุดที่ควรระวัง:</strong> ไอเดียเยอะแต่จบยาก ลองจับคู่ความคิดสร้างสรรค์กับระบบติดตามงานง่าย ๆ และฝึก “ปิดจ็อบ” ให้เสร็จทีละอย่างก่อนเปิดเรื่องใหม่'},
+   mid:{t:'ปานกลาง',d:'คุณอยู่ใน <b>จุดสมดุลระหว่างของใหม่กับของที่พิสูจน์แล้ว</b> เปิดรับไอเดียแปลกใหม่ได้หากมีเหตุผลรองรับ แต่ก็ไม่ทิ้งวิธีที่ใช้ได้ผลอยู่แล้ว คนลักษณะนี้มักเป็นสะพานเชื่อมระหว่างทีมสายนวัตกรรมกับทีมสายปฏิบัติได้ดี',
+        s:'<strong>แนวทางพัฒนา:</strong> ลองกำหนดโควตาเล็ก ๆ เช่น เดือนละ 1 เรื่องใหม่ที่ไม่เคยลอง เพื่อขยายเพดานประสบการณ์โดยไม่กระทบความมั่นคงที่คุณให้ค่า'},
+   low:{t:'ต่ำ',d:'คุณให้คุณค่ากับ <b>สิ่งที่เป็นรูปธรรม ใช้ได้จริง และพิสูจน์แล้ว</b> มากกว่าทฤษฎีหรือการทดลองที่ยังไม่แน่นอน คุณมีสมาธิกับงานที่ต้องทำซ้ำอย่างสม่ำเสมอได้ดี และไม่ไขว้เขวไปกับกระแสง่าย ๆ ซึ่งเป็นจุดแข็งในงานที่ต้องการความนิ่งและมาตรฐาน',
+        s:'<strong>จุดที่ควรระวัง:</strong> โลกเปลี่ยนเร็วอาจทำให้วิธีเดิมล้าสมัย ลองเปิดรับของใหม่แบบ “ชิมก่อน” ครั้งละเล็ก ๆ ในสภาพแวดล้อมที่เสี่ยงต่ำ'}},
+
+C:{high:{t:'สูง',d:'คุณมี <b>วินัย ความเป็นระบบ และความรับผิดชอบสูง</b> วางแผนล่วงหน้า ทำตามที่พูด และใส่ใจรายละเอียด ในบรรดา Big Five ทั้งห้ามิติ มิตินี้คือตัวทำนายผลสัมฤทธิ์ในการงาน การเรียน และแม้แต่สุขภาพระยะยาวได้ดีที่สุด',
+        s:'<strong>จุดที่ควรระวัง:</strong> ความสมบูรณ์แบบอาจกลายเป็นความเครียดสะสมและเหนื่อยล้า ฝึกแยกงานที่ต้อง “เนี้ยบ” ออกจากงานที่แค่ “เสร็จก็พอ”'},
+   mid:{t:'ปานกลาง',d:'คุณ <b>รับผิดชอบได้ดีโดยไม่ตึงจนเกินไป</b> มีแผนเป็นหลัก แต่ยังยืดหยุ่นเมื่อสถานการณ์เปลี่ยน คนในช่วงนี้มักทำงานร่วมกับคนหลายสไตล์ได้ราบรื่น และไม่กดดันตัวเองเกินพอดี',
+        s:'<strong>แนวทางพัฒนา:</strong> จุดอ่อนที่พบบ่อยคือความสม่ำเสมอในวันที่แรงจูงใจตก ลองใช้ระบบเล็ก ๆ เช่น กำหนดเวลาเริ่มงานตายตัวในแต่ละวัน'},
+   low:{t:'ต่ำ',d:'คุณทำงานด้วย <b>ความยืดหยุ่นและจังหวะของตัวเอง</b> ตอบสนองสถานการณ์เฉพาะหน้าได้คล่อง ไม่ติดกรอบ และมักผ่อนคลายกว่าคนรอบข้าง แต่โครงสร้างและกำหนดเวลาอาจเป็นจุดที่ท้าทาย',
+        s:'<strong>แนวทางพัฒนา:</strong> แทนที่จะฝืนสร้างวินัยแบบเข้มงวด ลองลดแรงเสียดทานแทน เช่น แตกงานใหญ่เป็นก้อนละ 15 นาที และใช้ตัวช่วยเตือนภายนอกแทนการพึ่งความจำ'}},
+
+E:{high:{t:'สูง',d:'คุณ <b>ได้พลังจากผู้คนและความเคลื่อนไหว</b> กล้าเริ่มบทสนทนา แสดงความเห็น และมักเป็นคนที่ทำให้บรรยากาศกลุ่มมีชีวิตชีวา ลักษณะนี้สัมพันธ์กับความไวต่อรางวัลทางสังคมและอารมณ์เชิงบวกที่เกิดบ่อย',
+        s:'<strong>จุดที่ควรระวัง:</strong> อาจตัดสินใจเร็วเกินไปหรือพูดก่อนคิด ลองฝึกเว้นจังหวะให้คนเงียบกว่าได้พูด และเผื่อเวลาอยู่กับตัวเองเพื่อทบทวน'},
+   mid:{t:'ปานกลาง',d:'คุณเป็น <b>Ambivert</b> — เข้าสังคมได้อย่างอบอุ่นเมื่อจำเป็น และกลับมาชาร์จพลังเงียบ ๆ ได้เมื่อหมดแรง คนลักษณะนี้มักอ่านบรรยากาศได้ดีและปรับโหมดตามสถานการณ์ได้คล่องกว่าคนที่อยู่สุดขั้ว',
+        s:'<strong>แนวทางพัฒนา:</strong> จุดแข็งคือความยืดหยุ่น ลองสังเกตว่ากิจกรรมแบบใด “ดูดพลัง” กับ “เติมพลัง” แล้วออกแบบตารางสัปดาห์ให้สมดุล'},
+   low:{t:'ต่ำ',d:'คุณ <b>เติมพลังจากความสงบและเวลาส่วนตัว</b> ชอบวงสนทนาเล็กที่ลึกมากกว่างานใหญ่ที่ผิวเผิน และมักคิดให้จบก่อนพูด ทำให้สิ่งที่คุณพูดออกมามีน้ำหนัก นี่ไม่ใช่ความขี้อายแต่เป็นรูปแบบการจัดการพลังงานที่ต่างออกไป',
+        s:'<strong>แนวทางพัฒนา:</strong> ในที่ทำงาน ความเงียบอาจถูกตีความว่าไม่สนใจ ลองเตรียมประเด็นล่วงหน้า 1–2 ข้อก่อนประชุม เพื่อให้เสียงของคุณถูกได้ยิน'}},
+
+A:{high:{t:'สูง',d:'คุณมี <b>ความเห็นอกเห็นใจและเชื่อใจผู้คนสูง</b> ให้ความสำคัญกับความกลมเกลียว ช่วยเหลือโดยไม่หวังผลตอบแทน และเป็นคนที่คนอื่นรู้สึกปลอดภัยที่จะเล่าเรื่องให้ฟัง ลักษณะนี้ทำนายคุณภาพความสัมพันธ์ระยะยาวได้ดี',
+        s:'<strong>จุดที่ควรระวัง:</strong> การเลี่ยงความขัดแย้งอาจทำให้คุณกลืนความต้องการตัวเอง ฝึกปฏิเสธอย่างสุภาพและบอกขอบเขตของตัวเองให้ชัด'},
+   mid:{t:'ปานกลาง',d:'คุณ <b>ใจดีได้โดยไม่ลืมปกป้องตัวเอง</b> ให้ความร่วมมือเมื่อสมเหตุสมผล แต่ก็กล้าตั้งคำถามหรือต่อรองเมื่อจำเป็น เป็นจุดที่เหมาะกับการเจรจาและการทำงานเป็นทีมที่ต้องถ่วงดุลระหว่างน้ำใจกับผลลัพธ์',
+        s:'<strong>แนวทางพัฒนา:</strong> ลองสังเกตว่าตัวเองเอนไปทางใดเมื่ออยู่ภายใต้ความกดดัน แล้วเลือกตอบสนองอย่างตั้งใจแทนการตอบสนองอัตโนมัติ'},
+   low:{t:'ต่ำ',d:'คุณ <b>ตรงไปตรงมาและยึดเหตุผลมากกว่าความเกรงใจ</b> กล้าเห็นต่าง ไม่เออออตามกลุ่มง่าย ๆ และประเมินเจตนาคนอื่นอย่างระมัดระวัง จุดแข็งคือการตัดสินใจโดยไม่ถูกแรงกดดันทางสังคมบิดเบือน และกล้าพูดสิ่งที่คนอื่นเลี่ยง',
+        s:'<strong>จุดที่ควรระวัง:</strong> ความตรงอาจถูกรับรู้เป็นความแข็งกระด้าง ลองเพิ่ม “การรับรู้ความรู้สึก” ก่อนเข้าเนื้อหา เช่น สรุปมุมของอีกฝ่ายก่อนค้าน'}},
+
+N:{high:{t:'สูง',d:'ระบบอารมณ์ของคุณ <b>ตอบสนองไวและละเอียด</b> คุณรับรู้สัญญาณอันตรายหรือความผิดปกติได้ก่อนคนอื่น จึงมักเตรียมแผนสำรองไว้เสมอ ด้านหนึ่งนี่คือความช่างสังเกตและความใส่ใจ อีกด้านคือความเครียดและการคิดวนที่มาเยือนบ่อย',
+        s:'<strong>แนวทางดูแลตัวเอง:</strong> เทคนิคที่มีหลักฐานรองรับคือการตั้งชื่ออารมณ์ (affect labeling) การฝึกหายใจช้า และการแยก “เรื่องที่ควบคุมได้” ออกจาก “เรื่องที่ควบคุมไม่ได้” หากความกังวลรบกวนการใช้ชีวิตต่อเนื่อง การพูดคุยกับผู้เชี่ยวชาญช่วยได้มาก'},
+   mid:{t:'ปานกลาง',d:'คุณ <b>รู้สึกไหวตามสถานการณ์ แต่กลับสู่สมดุลได้</b> มีความเครียดบ้างเมื่อเจอแรงกดดัน ซึ่งช่วยให้ตื่นตัวและไม่ประมาท แต่ไม่ถึงกับถูกอารมณ์พาไป ถือเป็นช่วงที่ยืดหยุ่นทางอารมณ์ในระดับที่ดีต่อการใช้ชีวิต',
+        s:'<strong>แนวทางพัฒนา:</strong> รักษาฐานที่ทำให้คุณกลับสมดุลได้ — การนอน การเคลื่อนไหวร่างกาย และคนที่คุณระบายด้วยได้ คือสามเสาที่ส่งผลต่ออารมณ์มากที่สุด'},
+   low:{t:'ต่ำ',d:'คุณมี <b>ความมั่นคงทางอารมณ์สูง (Emotional Stability)</b> ตั้งสติได้ดีแม้ในสถานการณ์วิกฤต ไม่เก็บเรื่องเล็กมาคิดซ้ำ และฟื้นจากความผิดหวังได้เร็ว คนรอบตัวมักรู้สึกอุ่นใจเมื่อมีคุณอยู่ในสถานการณ์ตึงเครียด',
+        s:'<strong>จุดที่ควรระวัง:</strong> ความนิ่งอาจทำให้ประเมินความเสี่ยงต่ำเกินไป หรือมองข้ามว่าคนอื่นกำลังเดือดร้อนจริง ลองถามความรู้สึกคนรอบข้างอย่างตั้งใจบ่อยขึ้น'}}
+};
+
+/* =========================================================
+   3) สถานะและการแสดงผลหน้าทดสอบ
+   ========================================================= */
+const PER_PAGE = 6, TOTAL = ORDER.length, PAGES = TOTAL/PER_PAGE;
+let answers = new Array(TOTAL).fill(null);
+let page = 0, startTime = 0;
+const LABELS = ['ไม่เห็นด้วย<br>อย่างยิ่ง','ไม่เห็นด้วย','เป็นกลาง','เห็นด้วย','เห็นด้วย<br>อย่างยิ่ง'];
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function startTest(){ startTime=Date.now(); show('screen-test'); renderPage(); }
+
+function renderPage(){
+  const list=document.getElementById('qlist'); list.innerHTML='';
+  list.style.opacity='1'; list.style.animation='none'; void list.offsetHeight;
+  list.style.animation='fade .5s ease';
+  document.getElementById('likert-guide').style.display = page===0?'block':'none';
+  for(let i=page*PER_PAGE;i<(page+1)*PER_PAGE;i++){
+    const it=ORDER[i];
+    const opts=[1,2,3,4,5].map(v=>`
+      <label class="opt s${v}">
+        <input type="radio" name="q${i}" value="${v}" ${answers[i]===v?'checked':''} onchange="answer(${i},${v})">
+        <span class="circle"></span><span class="lab">${LABELS[v-1]}</span>
+      </label>`).join('');
+    list.insertAdjacentHTML('beforeend',
+      `<div class="q ${answers[i]?'answered':''}" id="q-${i}">
+         <div class="text">${it.q}</div>
+         <div class="scale">${opts}</div>
+       </div>`);
+  }
+  updateUI();
+}
+
+function answer(i,v){
+  answers[i]=v;
+  document.getElementById('q-'+i).classList.add('answered');
+  updateUI();
+  // เลื่อนไปข้อถัดไปในหน้าเดียวกันอย่างนุ่มนวล
+  const next=document.getElementById('q-'+(i+1));
+  if(next && i+1 < (page+1)*PER_PAGE && !answers[i+1])
+    setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'center'}),180);
+  // ครบหน้าแล้ว → ไปหน้าถัดไปอัตโนมัติ
+  if(pageDone() && page<PAGES-1){
+    document.getElementById('nav-hint').textContent='กำลังไปยังหน้าถัดไป…';
+    setTimeout(()=>goPage(1),700);
+  }
+}
+
+function pageDone(){
+  for(let i=page*PER_PAGE;i<(page+1)*PER_PAGE;i++) if(!answers[i]) return false;
+  return true;
+}
+function goPage(d){
+  if(d>0 && !pageDone()) return;
+  const n=page+d; if(n<0||n>=PAGES) return;
+  const list=document.getElementById('qlist');
+  list.style.transition='opacity .25s ease'; list.style.opacity='0';
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{ page=n; renderPage(); list.style.opacity='1'; }, 450);
+}
+function updateUI(){
+  const done=answers.filter(Boolean).length, pct=Math.round(done/TOTAL*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('pcount').textContent=`ตอบแล้ว ${done} จาก ${TOTAL} ข้อ`;
+  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('btn-prev').disabled = page===0;
+  document.getElementById('btn-next').disabled = !pageDone() || page===PAGES-1;
+  const done2=pageDone();
+  document.getElementById('nav-hint').textContent =
+    done2 ? (page===PAGES-1?'คุณตอบครบทุกข้อแล้ว':'ส่วนนี้เสร็จแล้ว') : 'กรุณาตอบให้ครบทุกข้อในหน้านี้';
+  document.getElementById('btn-finish').style.display =
+    (page===PAGES-1 && answers.every(Boolean)) ? 'inline-block' : 'none';
+  document.getElementById('pg-now').textContent = page+1;
+  document.getElementById('pg-all').textContent = PAGES;
+  document.getElementById('pg-dots').innerHTML =
+    Array.from({length:PAGES},(_,i)=>
+      `<i class="${i===page?'on':(answers.slice(i*PER_PAGE,(i+1)*PER_PAGE).every(Boolean)?'done':'')}"></i>`).join('');
+}
+
+/* =========================================================
+   4) การคิดคะแนนและตรวจคุณภาพการตอบ
+   ========================================================= */
+function score(){
+  const raw={O:0,C:0,E:0,A:0,N:0};
+  ORDER.forEach((it,i)=>{ raw[it.t] += it.k===1 ? answers[i] : 6-answers[i]; });
+  const out={};
+  for(const t in raw){
+    const r=raw[t];
+    const pct=Math.round((r-6)/24*100);           // 6–30 → 0–100
+    const level = pct<35?'low' : pct>65?'high' : 'mid';
+    out[t]={raw:r,pct,level};
+  }
+  return out;
+}
+function validity(){
+  const flags=[];
+  let run=1,maxRun=1;
+  for(let i=1;i<TOTAL;i++){ run = answers[i]===answers[i-1]?run+1:1; maxRun=Math.max(maxRun,run); }
+  if(maxRun>=8) flags.push('คุณเลือกคำตอบเดิมติดต่อกันหลายข้อ');
+  const mid=answers.filter(v=>v===3).length;
+  if(mid>=18) flags.push('คุณเลือก “เป็นกลาง” เป็นส่วนใหญ่ ทำให้แยกระดับได้ยาก');
+  if((Date.now()-startTime)/1000 < TOTAL*1.5) flags.push('คุณใช้เวลาทำน้อยกว่าปกติมาก');
+  return flags;
+}
+
+/* =========================================================
+   5) อนิเมชัน Progress Bar ตอนวิเคราะห์
+   ========================================================= */
+const STEPS=[
+  'กำลังตรวจสอบความสมบูรณ์ของคำตอบ…',
+  'กำลังกลับคะแนนข้อเชิงลบ (Reverse Scoring)…',
+  'กำลังรวมคะแนนรายมิติทั้ง 5 ด้าน…',
+  'กำลังเทียบระดับกับเกณฑ์การแปลผล…',
+  'กำลังเรียบเรียงผลการวิเคราะห์…'
+];
+function finish(){
+  show('screen-loading');
+  const fill=document.getElementById('loadfill'), txt=document.getElementById('loadtext');
+  let p=0,s=0; fill.style.width='0%';
+  const timer=setInterval(()=>{
+    p+=Math.random()*9+5;
+    if(p>=100){p=100;clearInterval(timer);setTimeout(showResult,500);}
+    fill.style.width=p+'%';
+    const ns=Math.min(STEPS.length-1,Math.floor(p/20));
+    if(ns!==s){s=ns;txt.style.opacity=0;setTimeout(()=>{txt.textContent=STEPS[s];txt.style.opacity=1;},150);}
+  },180);
+  txt.textContent=STEPS[0];
+}
+
+/* =========================================================
+   6) แผนภูมิ 5 เหลี่ยม (Radar) + แถบสเปกตรัม
+   ========================================================= */
+function radar(res){
+  const S=360,c=S/2,R=118,ks=['O','C','E','A','N'];
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[c+r*Math.cos(a),c+r*Math.sin(a)];};
+  let g='';
+  [.2,.4,.6,.8,1].forEach(f=>{
+    g+=`<polygon points="${ks.map((_,i)=>pt(i,R*f).join(',')).join(' ')}" fill="none" stroke="#E4E8F2" stroke-width="1"/>`;
+  });
+  ks.forEach((_,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#E4E8F2" stroke-width="1"/>`;});
+  const poly=ks.map((k,i)=>pt(i,R*Math.max(.06,res[k].pct/100)).join(',')).join(' ');
+  let dots='',labs='';
+  ks.forEach((k,i)=>{
+    const[x,y]=pt(i,R*Math.max(.06,res[k].pct/100));
+    dots+=`<circle cx="${x}" cy="${y}" r="5.5" fill="#fff" stroke="${TRAITS[k].color}" stroke-width="3"/>`;
+    const[lx,ly]=pt(i,R+34);
+    const anc = Math.abs(lx-c)<4?'middle':(lx>c?'start':'end');
+    labs+=`<text x="${lx}" y="${ly}" text-anchor="${anc}" font-size="12.5" font-weight="600" fill="${TRAITS[k].color}">${TRAITS[k].en.split(' ')[0]}</text>
+           <text x="${lx}" y="${ly+16}" text-anchor="${anc}" font-size="12" font-weight="700" fill="#5B6782">${res[k].pct}%</text>`;
+  });
+  return `<svg viewBox="-95 -35 ${S+215} ${S+95}" style="width:100%;max-width:560px;overflow:visible">
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8B6FD4" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#45B07C" stop-opacity=".45"/></linearGradient></defs>
+    ${g}<polygon points="${poly}" fill="url(#rg)" stroke="#6E7FE0" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}${labs}</svg>`;
+}
+
+function showResult(){
+  const res=score();
+  document.getElementById('radar').innerHTML=radar(res);
+
+  // ประโยคสรุปภาพรวม
+  const order=Object.keys(res).sort((a,b)=>Math.abs(res[b].pct-50)-Math.abs(res[a].pct-50));
+  const top=order[0];
+  document.getElementById('headline').innerHTML =
+    `มิติที่โดดเด่นที่สุดของคุณคือ <b>${TRAITS[top].th} (${TRAITS[top].en})</b> ในระดับ${INTERP[top][res[top].level].t} — เลื่อนลงเพื่อดูรายละเอียดทั้ง 5 ด้าน`;
+
+  // แถบสเปกตรัม
+  const box=document.getElementById('specs'); box.innerHTML='';
+  ['O','C','E','A','N'].forEach(k=>{
+    const T=TRAITS[k], r=res[k], I=INTERP[k][r.level];
+    box.insertAdjacentHTML('beforeend',`
+      <div class="spec">
+        <div class="spec-head">
+          <h3>${T.th} <em>${T.en}</em><span class="badge" style="background:${T.color}">ระดับ${I.t}</span></h3>
+          <span class="score" style="color:${T.color}">${r.raw}/30 · ${r.pct}%</span>
+        </div>
+        <div class="track">
+          <div class="fill" id="f-${k}" style="background:linear-gradient(90deg,${T.color}22,${T.color})"></div>
+          <div class="pin" id="p-${k}" style="border-color:${T.color}"></div>
+        </div>
+        <div class="poles"><span>${T.lo}</span><span>${T.hi}</span></div>
+        <p class="desc">${I.d}</p>
+        <div class="tips">${I.s}</div>
+      </div>`);
+  });
+
+  // ธงคุณภาพการตอบ
+  const f=validity();
+  if(f.length){
+    document.getElementById('validity-card').style.display='block';
+    document.getElementById('validity-text').innerHTML =
+      `<b>ข้อสังเกตเกี่ยวกับรูปแบบการตอบ:</b> ${f.join(' · ')} — ผลลัพธ์อาจสะท้อนตัวคุณได้ไม่เต็มที่ หากต้องการความแม่นยำสูงขึ้น แนะนำให้ทำใหม่โดยอ่านแต่ละข้ออย่างไม่เร่งรีบ`;
+  }
+
+  show('screen-result');
+  setTimeout(()=>{ ['O','C','E','A','N'].forEach(k=>{
+    document.getElementById('f-'+k).style.width=res[k].pct+'%';
+    document.getElementById('p-'+k).style.left=res[k].pct+'%';
+  });},120);
+}
+
+/* =========================================================
+   7) รีเซ็ต — ผลลัพธ์หายทั้งหมด
+   ========================================================= */
+function resetAll(){
+  answers=new Array(TOTAL).fill(null); page=0; startTime=0;
+  document.getElementById('specs').innerHTML='';
+  document.getElementById('radar').innerHTML='';
+  document.getElementById('headline').textContent='';
+  document.getElementById('validity-card').style.display='none';
+  document.getElementById('qlist').innerHTML='';
+  document.getElementById('pfill').style.width='0%';
+  show('screen-intro');
+}
+</script>
+</body>
+</html>
